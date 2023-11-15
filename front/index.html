@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cadastro de Usuário</title>
+    <style>
+        *{
+        }
+        .container, .user-list {
+            width: 300px;
+            padding: 16px;
+            background-color: white;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastro de Usuário</h2>
+    <form id="userForm">
+        <label for="name"><b>Nome</b></label>
+        <input type="text" placeholder="Digite seu nome" 
+        name="name" required>
+
+        <label for="username"><b>Nome de Usuário</b></label>
+        <input type="text" placeholder="Digite seu nome de usuário" name="username" required>
+
+        <label for="password"><b>Senha</b></label>
+        <input type="password" placeholder="Digite sua senha" name="password" required>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+</div>
+
+<div class="user-list">
+    <h3>Usuários Cadastrados</h3>
+    <ul id="userList">
+        <!-- Os itens da lista serão inseridos aqui -->
+    </ul>
+</div>
+
+<div class="container">
+    <h2>Cadastro de Tarefas</h2>
+    <form id="taskForm">
+        <label for="title"><b>Título</b></label>
+        <input type="text" placeholder="Digite o título da tarefa" name="title" required>
+
+        <label for="description"><b>Descrição</b></label>
+        <input type="text" placeholder="Digite a descrição" name="description" required>
+
+        <label for="startAt"><b>Começa em</b></label>
+        <input type="text" placeholder="Data/Hora de início" name="startAt" required>
+
+        <label for="endAt"><b>Termina em</b></label>
+        <input type="text" placeholder="Data/Hora de término" name="endAt" required>
+
+        <label for="priority"><b>Prioridade</b></label>
+        <input type="text" placeholder="Prioridade" name="priority" required>
+
+        <label for="idUser"><b>ID do Usuário</b></label>
+        <input type="text" placeholder="ID do usuário associado" name="idUser" required>
+
+        <button type="submit">Cadastrar Tarefa</button>
+    </form>
+    <div class="container">
+        <h2>Pesquisar Tarefa</h2>
+        <form id="searchTaskForm">
+            <label for="searchIdUser"><b>ID do Usuário</b></label>
+            <input type="text" placeholder="Digite o ID do usuário" name="searchIdUser" required>
+    
+            <button type="submit">Pesquisar</button>
+        </form>
+    
+        
+<div class="task-list">
+    <h3>Tarefas Cadastradas</h3>
+    <ul id="taskList">
+        <!-- Os itens da lista de tarefas serão inseridos aqui -->
+    </ul>
+</div>
+    </div>
+</div>
+<div class="container">
+    <h2>Atualizar Tarefa</h2>
+    <form id="updateTaskForm">
+        <label for="updateId"><b>ID da Tarefa</b></label>
+        <input type="text" placeholder="Digite o ID da tarefa" name="updateId" required>
+
+        <label for="updateTitle"><b>Título</b></label>
+        <input type="text" placeholder="Digite o título da tarefa" name="updateTitle" >
+
+        <label for="updateDescription"><b>Descrição</b></label>
+        <input type="text" placeholder="Digite a descrição" name="updateDescription" >
+
+        <label for="updateStartAt"><b>Começa em</b></label>
+        <input type="text" placeholder="Data/Hora de início" name="updateStartAt" >
+
+        <label for="updateEndAt"><b>Termina em</b></label>
+        <input type="text" placeholder="Data/Hora de término" 
+        name="updateEndAt" >
+
+        <label for="updatePriority"><b>Prioridade</b></label>
+        <input type="text" placeholder="Prioridade" 
+        name="updatePriority" >
+
+        <label for="updateIdUser"><b>ID do Usuário</b></label>
+        <input type="text" placeholder="ID do usuário associado" 
+        name="updateIdUser" >
+
+        <button type="submit">Atualizar Tarefa</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchUsers();
+    });
+
+    document.getElementById('userForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Criar um objeto com os dados do formulário
+        var formData = {
+            name: e.target.elements.name.value,
+            username: e.target.elements.username.value,
+            password: e.target.elements.password.value
+        };
+
+        // Enviar os dados como JSON
+        fetch('http://localhost:8080/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            addUserToList(formData.name, formData.username);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+        e.target.reset(); // Reset the form fields
+    });
+
+    function fetchUsers() {
+        fetch('http://localhost:8080/users')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(users => {
+            users.forEach(user => {
+                addUserToList(user.id, user.name, user.username);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function addUserToList(id, name, username) {
+        var userList = document.getElementById('userList');
+        var newUserItem = document.createElement('li');
+
+        var idDiv = document.createElement('div');
+        idDiv.textContent = 'ID: ' + id;
+        newUserItem.appendChild(idDiv);
+
+        var nameDiv = document.createElement('div');
+        nameDiv.textContent = 'Nome: ' + name;
+        newUserItem.appendChild(nameDiv);
+
+        var usernameDiv = document.createElement('div');
+        usernameDiv.textContent = 'Nome de usuário: ' + username;
+        newUserItem.appendChild(usernameDiv);
+
+        userList.appendChild(newUserItem);
+}
+
+document.getElementById('taskForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var taskData = {
+            title: e.target.elements.title.value,
+            description: e.target.elements.description.value,
+            startAt: e.target.elements.startAt.value,
+            endAt: e.target.elements.endAt.value,
+            priority: e.target.elements.priority.value,
+            idUser: e.target.elements.idUser.value
+        };
+
+        fetch('http://localhost:8080/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(taskData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            addTaskToList(taskData.title, taskData.description, taskData.startAt, taskData.endAt, taskData.priority, taskData.idUser);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+        e.target.reset(); // Reset the form fields
+    });
+
+document.getElementById('searchTaskForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var idUser = e.target.elements.searchIdUser.value;
+
+    fetch('http://localhost:8080/tasks/' + idUser)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(tasks => {
+        tasks.forEach(task => {
+            addTaskToList(task.id, task.title, task.description, task.startAt, task.endAt, task.priority, task.idUser);
+        })
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+    function addTaskToList(id, title, description, startAt, endAt, priority, idUser) {
+        var taskList = document.getElementById('taskList');
+        var newTaskItem = document.createElement('li');
+
+        var idDiv = document.createElement('div');
+        idDiv.textContent = 'Id: ' + id;
+        newTaskItem.appendChild(idDiv);
+      
+        var titleDiv = document.createElement('div');
+        titleDiv.textContent = 'Título: ' + title;
+        newTaskItem.appendChild(titleDiv);
+
+        var descriptionDiv = document.createElement('div');
+        descriptionDiv.textContent = 'Descrição: ' + description;
+        newTaskItem.appendChild(descriptionDiv);
+
+        var startAtDiv = document.createElement('div');
+        startAtDiv.textContent = 'Começa em: ' + startAt;
+        newTaskItem.appendChild(startAtDiv);
+
+        var endAtDiv = document.createElement('div');
+        endAtDiv.textContent = 'Termina em: ' + endAt;
+        newTaskItem.appendChild(endAtDiv);
+
+        var priorityDiv = document.createElement('div');
+        priorityDiv.textContent = 'Prioridade: ' + priority;
+        newTaskItem.appendChild(priorityDiv);
+
+        var idUserDiv = document.createElement('div');
+        idUserDiv.textContent = 'ID do Usuário: ' + idUser;
+        newTaskItem.appendChild(idUserDiv);
+
+        taskList.appendChild(newTaskItem);
+    }
+
+// ... (restante do seu script JavaScript) ...
+
+document.getElementById('updateTaskForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var taskId = e.target.elements.updateId.value;
+    var taskData = {
+        title: e.target.elements.updateTitle.value,
+        description: e.target.elements.updateDescription.value,
+        startAt: e.target.elements.updateStartAt.value,
+        endAt: e.target.elements.updateEndAt.value,
+        priority: e.target.elements.updatePriority.value,
+        idUser: e.target.elements.updateIdUser.value
+    };
+
+    fetch('http://localhost:8080/tasks/' + taskId, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(taskData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(updatedTask => {
+        console.log('Task updated successfully:', updatedTask);
+        // Atualize a UI conforme necessário
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+</script>
+
+
+</body>
+</html>
