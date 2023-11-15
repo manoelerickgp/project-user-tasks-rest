@@ -14,7 +14,6 @@ public class BeanConfig implements WebMvcConfigurer {
         return new ModelMapper();
     }
 
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Aplica a todas as rotas

@@ -3,14 +3,15 @@ package com.task.api.service;
 import com.task.api.dto.TaskDto;
 import com.task.api.entity.Task;
 import com.task.api.repo.TaskRepo;
-import com.task.api.utils.Utils;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -21,31 +22,52 @@ public class TaskService {
     private final ModelMapper mapper;
 
     @Transactional
-    public ResponseEntity<?> createTask(TaskDto task) {
-        repository.save(mapper.map(task, Task.class));
-        return ResponseEntity.status(201).build();
+    public Task createTask(TaskDto task) {
+        return repository.save(mapper.map(task, Task.class));
     }
 
 
     @Transactional(readOnly = true)
-    public ResponseEntity<?> getTaskByUserId(UUID userId) {
-        var list = this.repository.findByIdUser(userId);
-        return ResponseEntity.ok(list);
+    public List<Task> getTaskByUserId(UUID userId) {
+        return this.repository.findByIdUser(userId);
     }
 
 
-    public ResponseEntity<?> updateTask(UUID id, TaskDto taskDetails) {
-        var task = this.repository.findById(id).orElse(null);
+    @Transactional
+    public Task updateTask(UUID id, TaskDto taskDetails) {
+        Optional<Task> taskOptional = repository.findById(id);
+        if (!taskOptional.isPresent()) {
+            throw new NoSuchElementException("Task Not Found");
+        }
+
+        Task task = taskOptional.get();
+        if (taskDetails.getTitle() != null && !taskDetails.getTitle().isEmpty()) {
+            task.setTitle(taskDetails.getTitle());
+        }
+        if (taskDetails.getDescription() != null && !taskDetails.getDescription().isEmpty()) {
+            task.setDescription(taskDetails.getDescription());
+        }
+        if (taskDetails.getIdUser() != null) {
+            task.setIdUser(taskDetails.getIdUser());
+        }
+        if (taskDetails.getStartAt() != null && !taskDetails.getStartAt().isEmpty()) {
+            task.setStartAt(taskDetails.getStartAt());
+        }
+        if (taskDetails.getEndAt() != null && !taskDetails.getEndAt().isEmpty()) {
+            task.setEndAt(taskDetails.getEndAt());
+        }
+        if (taskDetails.getPriority() != null && !taskDetails.getPriority().isEmpty()) {
+            task.setPriority(taskDetails.getPriority());
+        }
+        return repository.save(task);
+    }
+
+    @Transactional
+    public void deleteTask(UUID taskId) {
+        var task = this.repository.findById(taskId).orElse(null);
         if (task == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Tarefa não encontrada");
+            throw new NoSuchElementException("");
         }
-        if (!task.getIdUser().equals(task.getIdUser())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Usuário sem permissão para alterar esta tarefa");
-        }
-        Utils.copyNonNullProperties(taskDetails, task);
-        var taskUpdated = this.repository.save(task);
-        return ResponseEntity.ok().body(taskUpdated);
+        repository.deleteById(taskId);
     }
 }
