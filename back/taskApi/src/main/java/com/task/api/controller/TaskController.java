@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -18,18 +19,20 @@ public class TaskController {
     private final TaskService service;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTaskByUserId(@PathVariable(value = "id") UUID userId) {
+    public ResponseEntity<List<?>> getTaskByUserId(@PathVariable(value = "id") UUID userId) {
         return new ResponseEntity<>(this.service.getTaskByUserId(userId), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody TaskDto task) {
-        return new ResponseEntity<>(service.createTask(task), HttpStatus.CREATED);
+        task = service.createTask(task);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable(value = "id") UUID taskId, @RequestBody TaskDto taskDetails) {
-        return new ResponseEntity<>(this.service.updateTask(taskId, taskDetails), HttpStatus.OK);
+        var taskUpdated = this.service.updateTask(taskId, taskDetails);
+        return new ResponseEntity<>(taskUpdated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

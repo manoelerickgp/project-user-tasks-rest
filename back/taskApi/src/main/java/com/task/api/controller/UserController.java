@@ -18,9 +18,15 @@ public class UserController {
 
     private final UserServive service;
 
+    @GetMapping
+    public ResponseEntity<?> findUserById(){
+        return new ResponseEntity<>(service.findUserById(), HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody UserCreate userCreate){
-       return new ResponseEntity<>(this.service.createUser(userCreate), HttpStatus.CREATED);
+        this.service.createUser(userCreate);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 }

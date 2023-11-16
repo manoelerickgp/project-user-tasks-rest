@@ -21,20 +21,20 @@ public class TaskService {
     private final TaskRepo repository;
     private final ModelMapper mapper;
 
-    @Transactional
-    public Task createTask(TaskDto task) {
-        return repository.save(mapper.map(task, Task.class));
-    }
-
-
     @Transactional(readOnly = true)
-    public List<Task> getTaskByUserId(UUID userId) {
+    public List<?> getTaskByUserId(UUID userId) {
         return this.repository.findByIdUser(userId);
     }
 
+    @Transactional
+    public TaskDto createTask(TaskDto taskDto) {
+        var task = repository.save(mapper.map(taskDto, Task.class));
+        return mapper.map(task, TaskDto.class);
+
+    }
 
     @Transactional
-    public Task updateTask(UUID id, TaskDto taskDetails) {
+    public TaskDto updateTask(UUID id, TaskDto taskDetails) {
         Optional<Task> taskOptional = repository.findById(id);
         if (!taskOptional.isPresent()) {
             throw new NoSuchElementException("Task Not Found");
@@ -59,7 +59,8 @@ public class TaskService {
         if (taskDetails.getPriority() != null && !taskDetails.getPriority().isEmpty()) {
             task.setPriority(taskDetails.getPriority());
         }
-        return repository.save(task);
+        task = repository.save(task);
+        return mapper.map(task, TaskDto.class);
     }
 
     @Transactional

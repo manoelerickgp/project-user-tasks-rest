@@ -104,7 +104,7 @@
             <label for="searchIdUser"><b>ID do Usuário</b></label>
             <input type="text" placeholder="Digite o ID do usuário" name="searchIdUser" required>
     
-            <button type="submit">Pesquisar</button>
+            <button type="submit" onclick="document.getElementById('searchTaskForm').reset()">Pesquisar</button>
         </form>
     
         
@@ -143,9 +143,18 @@
         <input type="text" placeholder="ID do usuário associado" 
         name="updateIdUser" >
 
-        <button type="submit">Atualizar Tarefa</button>
+        <button type="submit" onclick="document.getElementById('updateTaskForm').reset()">Atualizar Tarefa</button>
     </form>
 </div>
+
+<div class="container">
+    <h2>Deletar Tarefa</h2>
+    <form id="deleteTaskForm">
+        <label for="deleteTaskById"><b>ID da Tarefa</b></label>
+        <input type="text" placeholder="Digite o ID da tarefa" name="deleteIdTask" required>
+
+        <button type="submit">Deletar</button>
+    </form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -196,7 +205,8 @@
         })
         .then(users => {
             users.forEach(user => {
-                addUserToList(user.id, user.name, user.username);
+                addUserToList(user.id, user.name, 
+                user.username);
             });
         })
         .catch(error => {
@@ -351,6 +361,33 @@ document.getElementById('updateTaskForm').addEventListener('submit', function(e)
         console.error('Error:', error);
     });
 });
+
+
+document.getElementById('deleteTaskForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var idTask = e.target.elements.deleteIdTask.value;
+
+    fetch('http://localhost:8080/tasks/' + idTask, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(tasks => {
+       console.log(task)
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
 
 </script>
 
