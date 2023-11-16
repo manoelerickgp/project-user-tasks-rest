@@ -2,15 +2,14 @@ package com.task.api.service;
 
 import com.task.api.dto.TaskDto;
 import com.task.api.entity.Task;
+import com.task.api.exceptions.NotFoundException;
 import com.task.api.repo.TaskRepo;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ public class TaskService {
     public TaskDto updateTask(UUID id, TaskDto taskDetails) {
         Optional<Task> taskOptional = repository.findById(id);
         if (!taskOptional.isPresent()) {
-            throw new NoSuchElementException("Task Not Found");
+            throw new NotFoundException("Task Not Found");
         }
 
         Task task = taskOptional.get();
@@ -67,7 +66,7 @@ public class TaskService {
     public void deleteTask(UUID taskId) {
         var task = this.repository.findById(taskId).orElse(null);
         if (task == null) {
-            throw new NoSuchElementException("");
+            throw new NotFoundException("Task Not Found");
         }
         repository.deleteById(taskId);
     }
